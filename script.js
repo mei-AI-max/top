@@ -37,10 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
 
             try {
-                const response = await fetch("/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams(formData).toString(),
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
 
                 if (response.ok) {
@@ -48,8 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.style.background = '#00c853';
                     contactForm.reset();
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.errors ? errorData.errors.map(err => err.message).join(', ') : 'Form submission failed');
+                    // JSONでない（HTMLエラーページなどの）返答が来た場合に備える
+                    const contentType = response.headers.get("content-type");
+                    let errorMessage = 'Form submission failed';
+
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.errors ? errorData.errors.map(err => err.message).join(', ') : errorMessage;
+                    } else {
+                        errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 btn.innerText = 'Error!';
@@ -57,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Submission Error:', error);
 
                 // ユーザーに詳細なエラー内容をアラートで表示
-                alert('送信に失敗しました。\n理由: ' + error.message + '\n\n【重要】\nNetlify FormsはNetlifyにデプロイされた環境でのみ動作します。ローカル(file://)環境では送信できません。');
+                alert('送信に失敗しました。\n理由: ' + error.message + '\n\n【重要】\nGitHub Pagesでお使いの場合、Formspreeの認証（Activate）が完了している必要があります。Formspreeからの確認メールを再度ご確認ください。');
             } finally {
                 setTimeout(() => {
                     btn.innerText = originalText;
