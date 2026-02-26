@@ -149,13 +149,15 @@
         <h2 class="section-title reveal">Contact</h2>
         <div class="contact-container reveal">
             <form id="contact-form" action="https://formspree.io/f/mdalbbbd" method="POST">
+                <!-- フォームのタイトルをメールの件名にする設定 -->
+                <input type="hidden" name="_subject" value="ポートフォリオサイトからのお問い合わせ">
                 <div class="form-group">
                     <label>Name</label>
                     <input type="text" name="name" placeholder="お名前" required>
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="_replyto" placeholder="メールアドレス" required>
+                    <input type="email" name="email" placeholder="メールアドレス" required>
                 </div>
                 <div class="form-group">
                     <label>Message</label>
